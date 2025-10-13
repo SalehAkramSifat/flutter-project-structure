@@ -1,5 +1,6 @@
 import 'package:flutter_project_structure/core/common/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project_structure/core/utils/app_sizer.dart';
 
 class Aligntext extends StatelessWidget {
   final String text;
@@ -20,7 +21,7 @@ class Aligntext extends StatelessWidget {
         text: text,
         fontSize: fontSize ?? 14.sp,
         fontWeight: FontWeight.w700,
-        color: textColor ?? AppColors.backgroundDark,
+        color: textColor ?? Colors.black,
       ),
     );
   }
@@ -45,7 +46,7 @@ class SpechalAlignText extends StatelessWidget {
         text: text,
         fontSize: fontSize ?? 14.sp,
         fontWeight: FontWeight.w400,
-        color: textColor ?? AppColors.backgroundDark,
+        color: textColor ?? Colors.black,
       ),
     );
   }

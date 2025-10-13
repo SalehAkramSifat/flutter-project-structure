@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_project_structure/core/utils/app_sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -81,7 +82,7 @@ class CustomTextFormField extends StatelessWidget {
           color: containerBorderColor ?? Color(0xffF1F1F1),
           width: containerBorderWidth ?? 1.5,
         ),
-        borderRadius: BorderRadius.circular(radius ?? 16.h),
+        borderRadius: BorderRadius.circular(radius ?? 16.r),
       ),
       child: TextFormField(
         controller: controller,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_structure/core/common/custom_text.dart';
+import 'package:flutter_project_structure/core/utils/app_sizer.dart';
+import 'package:flutter_project_structure/core/utils/icon_path.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;

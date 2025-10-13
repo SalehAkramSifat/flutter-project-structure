@@ -1,6 +1,6 @@
 import 'dart:developer';
+import 'package:flutter_project_structure/route/app_routes.dart';
 import 'package:get/get.dart';
-import 'package:multifix/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
