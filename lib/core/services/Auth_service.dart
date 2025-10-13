@@ -65,7 +65,7 @@ class AuthService {
   static String? get role => _preferences.getString(_roleKey);
 
   static Future<void> goToLogin() async {
-    Get.offAllNamed(AppRoute.loginScreen);
+    Get.offAllNamed(AppRoute.init);
   }
 
   // Getter for token
