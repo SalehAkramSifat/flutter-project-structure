@@ -47,7 +47,7 @@ class AuthService {
       await _preferences.clear();
       _token = null;
       log('Logout cleared preferences');
-      Get.offAllNamed(AppRoute.chooseRole);
+      Get.offAllNamed(AppRoute.init);
     } catch (e) {
       log('Error during logout: $e');
     }
