@@ -345,3 +345,137 @@ class NetworkCaller {
     }
   }
 }
+
+/*
+================================================================================
+💡 HOW TO USE NetworkCaller (DUMMY API EXAMPLES)
+================================================================================
+
+final networkCaller = NetworkCaller();
+
+// -----------------------------------------------------------------------------
+// 1️⃣ GET Request Example (Fetching data)
+// -----------------------------------------------------------------------------
+Future<void> fetchUserProfile() async {
+  final response = await networkCaller.getRequest(
+    'https://api.example.com/api/v1/user/profile',
+  );
+
+  if (response.isSuccess) {
+    final userData = response.responseData;
+    AppLogger.info('User Name: ${userData['data']['name']}');
+  } else {
+    AppLogger.error('Failed to load profile: ${response.errorMessage}');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 2️⃣ POST Request Example (Login / Create item)
+// -----------------------------------------------------------------------------
+Future<void> loginUser(String email, String password) async {
+  final response = await networkCaller.postRequest(
+    'https://api.example.com/api/v1/auth/login',
+    body: {
+      'email': email,
+      'password': password,
+    },
+  );
+
+  if (response.isSuccess) {
+    final token = response.responseData['token'];
+    await AuthService.saveToken(token);
+  } else {
+    AppLogger.error('Login error: ${response.errorMessage}');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 3️⃣ PUT Request Example (Full resource update)
+// -----------------------------------------------------------------------------
+Future<void> updateSettings(Map<String, dynamic> settingsData) async {
+  final response = await networkCaller.putRequest(
+    'https://api.example.com/api/v1/user/settings',
+    body: settingsData,
+  );
+
+  if (response.isSuccess) {
+    AppLogger.info('Settings updated successfully!');
+  } else {
+    AppLogger.error('Settings update failed: ${response.errorMessage}');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 4️⃣ PATCH Request Example (Partial update like bio or status)
+// -----------------------------------------------------------------------------
+Future<void> updateBio(String newBio) async {
+  final response = await networkCaller.patchRequest(
+    'https://api.example.com/api/v1/user/bio',
+    body: {'bio': newBio},
+  );
+
+  if (response.isSuccess) {
+    AppLogger.info('Bio updated successfully!');
+  } else {
+    AppLogger.error('Bio update failed: ${response.errorMessage}');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 5️⃣ DELETE Request Example (Removing an item)
+// -----------------------------------------------------------------------------
+Future<void> deletePost(String postId) async {
+  final response = await networkCaller.deleteRequest(
+    'https://api.example.com/api/v1/posts/$postId',
+  );
+
+  if (response.isSuccess) {
+    AppLogger.info('Post deleted successfully!');
+  } else {
+    AppLogger.error('Delete failed: ${response.errorMessage}');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 6️⃣ Multipart POST Request (Upload new post with image)
+// -----------------------------------------------------------------------------
+Future<void> createPostWithImage(String caption, File imageFile) async {
+  final response = await networkCaller.multipartPostRequest(
+    'https://api.example.com/api/v1/posts/create',
+    fields: {
+      'caption': caption,
+    },
+    files: [
+      MapEntry('image', imageFile),
+    ],
+  );
+
+  if (response.isSuccess) {
+    AppLogger.info('Post created with image!');
+  } else {
+    AppLogger.error('Upload failed: ${response.errorMessage}');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 7️⃣ Multipart PATCH Request (Update profile with optional new avatar)
+// -----------------------------------------------------------------------------
+Future<void> updateProfileWithPhoto(String name, File? newAvatar) async {
+  final response = await networkCaller.multipartPatchRequest(
+    'https://api.example.com/api/v1/user/profile',
+    fields: {
+      'name': name,
+    },
+    files: newAvatar != null 
+        ? [MapEntry('avatar', newAvatar)] 
+        : null,
+  );
+
+  if (response.isSuccess) {
+    AppLogger.info('Profile and avatar updated!');
+  } else {
+    AppLogger.error('Profile update failed: ${response.errorMessage}');
+  }
+}
+================================================================================
+*/

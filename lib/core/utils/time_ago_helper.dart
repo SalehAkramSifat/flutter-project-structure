@@ -1,11 +1,12 @@
 class TimeAgoHelper {
-  static String getTimeAgo(String? dateTimeString) {
-    if (dateTimeString == null || dateTimeString.isEmpty) {
-      return 'Unknown time';
-    }
+  TimeAgoHelper._();
+
+  /// Full relative time string (e.g. "Just now", "5 minutes ago", "2 hours ago", "3 days ago")
+  static String getTimeAgo(dynamic dateTimeInput) {
+    final DateTime? dateTime = _parseDateTime(dateTimeInput);
+    if (dateTime == null) return 'Unknown time';
 
     try {
-      final DateTime dateTime = DateTime.parse(dateTimeString);
       final DateTime now = DateTime.now();
       final Duration difference = now.difference(dateTime);
 
@@ -30,18 +31,17 @@ class TimeAgoHelper {
         final years = (difference.inDays / 365).floor();
         return '$years ${years == 1 ? 'year' : 'years'} ago';
       }
-    } catch (e) {
+    } catch (_) {
       return 'Unknown time';
     }
   }
 
-  static String getShortTimeAgo(String? dateTimeString) {
-    if (dateTimeString == null || dateTimeString.isEmpty) {
-      return 'Unknown';
-    }
+  /// Short relative time string (e.g. "Just now", "5m ago", "2h ago", "3d ago", "2w ago")
+  static String getShortTimeAgo(dynamic dateTimeInput) {
+    final DateTime? dateTime = _parseDateTime(dateTimeInput);
+    if (dateTime == null) return 'Unknown';
 
     try {
-      final DateTime dateTime = DateTime.parse(dateTimeString);
       final DateTime now = DateTime.now();
       final Duration difference = now.difference(dateTime);
 
@@ -60,8 +60,46 @@ class TimeAgoHelper {
       } else {
         return '${(difference.inDays / 365).floor()}y ago';
       }
-    } catch (e) {
+    } catch (_) {
       return 'Unknown';
     }
   }
+
+  static DateTime? _parseDateTime(dynamic input) {
+    if (input == null) return null;
+    if (input is DateTime) return input;
+    if (input is String) {
+      if (input.trim().isEmpty) return null;
+      return DateTime.tryParse(input.trim());
+    }
+    return null;
+  }
 }
+
+/*
+================================================================================
+💡 HOW TO USE TimeAgoHelper (EXAMPLES)
+================================================================================
+
+1. Full relative time (Ideal for social feeds, post details, comments, notifications):
+   Text(TimeAgoHelper.getTimeAgo(post.createdAt))
+   // Output examples:
+   // - "Just now"
+   // - "5 minutes ago"
+   // - "2 hours ago"
+   // - "3 days ago"
+   // - "2 weeks ago"
+   // - "1 year ago"
+
+2. Short compact time (Ideal for chat list item, notification badge, compact cards):
+   Text(TimeAgoHelper.getShortTimeAgo(chat.lastMessageTime))
+   // Output examples:
+   // - "Just now"
+   // - "5m ago"
+   // - "2h ago"
+   // - "3d ago"
+   // - "2w ago"
+   // - "1y ago"
+
+================================================================================
+*/
