@@ -57,6 +57,8 @@ lib/
 │   │   ├── full_screen_photo_viewer.dart   # Interactive photo viewer with smooth double-tap zoom
 │   │   ├── loader_helper.dart              # Loading state controller & overlays
 │   │   ├── network_image_handler.dart      # Network image handler with shimmer loader & fallback
+│   │   ├── network_wrapper.dart            # Global reactive overlay wrapper auto-handling connectivity
+│   │   ├── no_internet_screen.dart         # Lottie-powered offline screen & widget with retry CTA
 │   │   ├── pdf_viewer_screen.dart          # Full-featured PDF viewer with reload & download guards
 │   │   ├── permission_disclosure_dialog.dart # Google Play policy-compliant permission dialog
 │   │   └── pinput/                         # Specialized OTP / PIN input module
@@ -74,12 +76,14 @@ lib/
 │   │
 │   ├── services/
 │   │   ├── auth_service.dart               # Hardware-encrypted secure token storage & session manager
-│   │   └── network_caller.dart             # HTTP client (GET, POST, PUT, PATCH, DELETE, Multipart)
+│   │   ├── network_caller.dart             # HTTP client (GET, POST, PUT, PATCH, DELETE, Multipart)
+│   │   └── network_controller.dart         # Real-time connectivity & DNS internet access monitor
 │   │
 │   ├── theme/
 │   │   └── app_theme.dart                  # Light and Dark ThemeData configurations
 │   │
 │   ├── utils/                              # Constants, formatters, and device utilities
+│   │   ├── animation_path.dart             # Lottie animation asset paths
 │   │   ├── app_colors.dart                 # Clean, zero-bloat color palette
 │   │   ├── app_sizer.dart                  # Figma 390x844 responsive scaling (.w, .h, .sp, .r)
 │   │   ├── app_texts.dart                  # Static application text constants

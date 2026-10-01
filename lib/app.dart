@@ -1,3 +1,4 @@
+import 'package:flutter_project_structure/core/common/network_wrapper.dart';
 import 'package:flutter_project_structure/core/binding/app_binding.dart';
 import 'package:flutter_project_structure/core/theme/app_theme.dart';
 import 'package:flutter_project_structure/core/utils/app_sizer.dart';
@@ -36,9 +37,12 @@ class MyApp extends StatelessWidget {
               ? Transition.cupertino
               : Transition.fade,
           locale: Get.deviceLocale,
-          builder: (context, child) => PlatformUtils.isIOS
-              ? CupertinoTheme(data: const CupertinoThemeData(), child: child!)
-              : child!,
+          builder: (context, child) {
+            final content = PlatformUtils.isIOS
+                ? CupertinoTheme(data: const CupertinoThemeData(), child: child!)
+                : child!;
+            return NetworkWrapper(child: content);
+          },
         );
       },
     );
