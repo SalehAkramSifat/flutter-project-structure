@@ -203,7 +203,7 @@ class NetworkCaller {
     String? token,
   }) async {
     final authToken = token ?? AuthService.token ?? '';
-    if (authToken == null || authToken.isEmpty) {
+    if (authToken.isEmpty) {
       return ResponseData(
         isSuccess: false,
         statusCode: 401,

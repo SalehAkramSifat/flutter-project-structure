@@ -1,90 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_project_structure/core/common/custom_text.dart';
+import 'package:flutter_project_structure/core/utils/app_colors.dart';
 import 'package:flutter_project_structure/core/utils/app_sizer.dart';
-import 'package:flutter_project_structure/core/utils/icon_path.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
-  final String? title;
-  final Widget? icon;
-  final double? fontSize;
-  final Color? titleColor;
-  final Color? iconColor;
+  final String title;
   final bool centerTitle;
+  final bool showBackIcon;
+  final VoidCallback? onBackTap;
+  final Widget? leading;
   final Widget? trailing;
-  final bool backIcon; // <-- added
+  final List<Widget>? actions;
+  final Color? backgroundColor;
+  final Color? titleColor;
+  final double? fontSize;
+  final FontWeight? fontWeight;
+  final double elevation;
+  final double toolbarHeight;
 
   const CustomAppbar({
     super.key,
-    this.title,
-    this.icon,
-    this.fontSize,
-    this.titleColor,
-    this.iconColor,
-    this.centerTitle = false,
+    this.title = '',
+    this.centerTitle = true,
+    this.showBackIcon = true,
+    this.onBackTap,
+    this.leading,
     this.trailing,
-    this.backIcon = true, // <-- default true (always show)
+    this.actions,
+    this.backgroundColor,
+    this.titleColor,
+    this.fontSize,
+    this.fontWeight,
+    this.elevation = 0,
+    this.toolbarHeight = kToolbarHeight,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasTitle = title != null && title!.trim().isNotEmpty;
-    final double topPadding = MediaQuery.of(context).padding.top;
+    final effectiveTitleColor = titleColor ?? Colors.white;
 
-    return Container(
-      // color: AppColors.backgroundLight,
-      padding: EdgeInsets.only(top: topPadding),
-      child: SizedBox(
-        height: 52.h,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            if (backIcon)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon:
-                      icon ??
-                      Image.asset(
-                        IconPath.arrowBack,
-                        color: Colors.black,
-                        width: 18.w,
-                        height: 13.h,
-                      ),
-                  color: iconColor,
-                ),
-              ),
-            if (hasTitle)
-              Align(
-                alignment: centerTitle
-                    ? Alignment.center
-                    : Alignment.centerLeft,
-                child: Padding(
-                  padding: centerTitle
-                      ? EdgeInsets.zero
-                      : EdgeInsets.only(left: 45.w), // <-- সবসময় 45.w offset
-                  child: CustomText(
-                    text: title!,
-                    fontSize: fontSize ?? 20.sp,
-                    fontWeight: FontWeight.w500,
-                    color: titleColor ?? Colors.black,
+    return AppBar(
+      backgroundColor: backgroundColor ?? AppColors.primary,
+      elevation: elevation,
+      toolbarHeight: toolbarHeight,
+      centerTitle: centerTitle,
+      automaticallyImplyLeading: false,
+      titleSpacing: showBackIcon ? 0 : 16.w,
+      leading:
+          leading ??
+          (showBackIcon
+              ? IconButton(
+                  onPressed: onBackTap ?? () => Get.back(),
+                  icon: Icon(
+                    Icons.arrow_back_rounded,
+                    color: effectiveTitleColor,
+                    size: 24.r,
                   ),
-                ),
-              ),
-            if (trailing != null)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: EdgeInsets.only(right: 12.w),
-                  child: trailing!,
-                ),
-              ),
-          ],
-        ),
-      ),
+                  splashRadius: 22,
+                  tooltip: 'Back',
+                )
+              : null),
+      title: title.isNotEmpty
+          ? CustomText(
+              text: title,
+              color: effectiveTitleColor,
+              fontSize: fontSize ?? 18.sp,
+              fontWeight: fontWeight ?? FontWeight.w600,
+              maxLines: 1,
+              textOverflow: TextOverflow.ellipsis,
+            )
+          : null,
+      actions:
+          actions ??
+          (trailing != null
+              ? [
+                  Padding(
+                    padding: EdgeInsets.only(right: 16.w),
+                    child: Center(child: trailing!),
+                  ),
+                ]
+              : null),
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(52.0);
+  Size get preferredSize => Size.fromHeight(toolbarHeight);
 }

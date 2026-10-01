@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_structure/core/utils/app_colors.dart';
+import 'package:flutter_project_structure/core/utils/app_sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomAlignText extends StatelessWidget {
   final String text;
-
+  final AlignmentGeometry alignment;
   final TextAlign? textAlign;
   final double? fontSize;
   final Color? color;
@@ -17,7 +19,7 @@ class CustomAlignText extends StatelessWidget {
   const CustomAlignText({
     super.key,
     required this.text,
-
+    this.alignment = Alignment.centerLeft,
     this.textAlign,
     this.fontSize,
     this.color,
@@ -32,17 +34,17 @@ class CustomAlignText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: alignment,
       child: Text(
         text,
         textAlign: textAlign ?? TextAlign.left,
-        style: GoogleFonts.onest(
+        style: GoogleFonts.inter(
           decoration: decoration,
           decorationThickness: decorationThickness,
-          decorationColor: decorationColor ?? const Color(0xff2972FF),
-          fontSize: fontSize ?? 20,
-          color: color ?? Colors.black,
-          fontWeight: fontWeight ?? FontWeight.w600,
+          decorationColor: decorationColor ?? color ?? AppColors.primary,
+          fontSize: fontSize ?? 14.sp,
+          color: color ?? const Color(0xFF6B7280),
+          fontWeight: fontWeight ?? FontWeight.w700,
         ),
         overflow: textOverflow,
         maxLines: maxLines,
