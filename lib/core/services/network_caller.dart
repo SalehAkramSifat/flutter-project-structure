@@ -1,27 +1,27 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter_project_structure/core/logging/logger.dart';
+import 'package:flutter_project_structure/core/models/response_data.dart';
+import 'package:flutter_project_structure/core/services/auth_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
-import '../models/response_data.dart';
-import 'auth_service.dart';
 
 class NetworkCaller {
-  final int timeoutDuration = 20;
+  static const Duration _timeout = Duration(seconds: 30);
 
-  Future<ResponseData> getRequest(String endpoint, {String? token}) async {
-    AppLoggerHelper.info('GET Request: $endpoint');
+  Future<ResponseData> getRequest(
+    String endpoint, {
+    String? token,
+    Map<String, String>? headers,
+  }) async {
+    AppLogger.info('🌐 GET Request: $endpoint');
     try {
-      final Response response = await get(
-        Uri.parse(endpoint),
-        headers: {
-          'Authorization': token ?? AuthService.token.toString(),
-          'Content-type': 'text/plain',
-          'x-api-key': "AABBCCCDDDJJKKIIUU1234",
-        },
-      ).timeout(Duration(seconds: timeoutDuration));
+      final response = await http
+          .get(
+            Uri.parse(endpoint),
+            headers: _buildHeaders(token: token, extraHeaders: headers),
+          )
+          .timeout(_timeout);
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
@@ -32,141 +32,19 @@ class NetworkCaller {
     String endpoint, {
     Map<String, dynamic>? body,
     String? token,
+    Map<String, String>? headers,
   }) async {
-    AppLoggerHelper.info('POST Request: $endpoint');
-    AppLoggerHelper.info('Request Body: ${jsonEncode(body.toString())}');
+    AppLogger.info('🚀 POST Request: $endpoint');
+    if (body != null) AppLogger.json(body, tag: 'POST Request');
 
     try {
-      final Response response = await post(
-        Uri.parse(endpoint),
-        headers: {
-          'Authorization': token ?? AuthService.token.toString(),
-          'Content-type': 'application/json',
-          'x-api-key': "AABBCCCDDDJJKKIIUU1234",
-        },
-        body: jsonEncode(body),
-      ).timeout(Duration(seconds: timeoutDuration));
-      return _handleResponse(response);
-    } catch (e) {
-      return _handleError(e);
-    }
-  }
-
-  Future<ResponseData> loginPostRequest(
-    String endpoint, {
-    Map<String, dynamic>? body,
-    String? token,
-  }) async {
-    AppLoggerHelper.info('POST Request: $endpoint');
-    AppLoggerHelper.info('Request Body: ${jsonEncode(body.toString())}');
-
-    try {
-      final Response response = await post(
-        Uri.parse(endpoint),
-        headers: {
-          'Authorization': token ?? AuthService.token.toString(),
-          'Content-type': 'application/json',
-          'x-api-key': "AABBCCCDDDJJKKIIUU1234",
-        },
-        body: jsonEncode(body),
-      ).timeout(Duration(seconds: timeoutDuration));
-      return _loginhandleResponse(response);
-    } catch (e) {
-      return _handleError(e);
-    }
-  }
-
-  Future<ResponseData> multipartRequest(
-    String endpoint, {
-    required List<File> files,
-    required String field, // name of the file field, e.g., "tickets"
-    String? token,
-    Map<String, dynamic>? otherFields, // your text fields
-  }) async {
-    AppLoggerHelper.info('MULTIPART Request: $endpoint');
-    try {
-      final uri = Uri.parse(endpoint);
-      final request = http.MultipartRequest('POST', uri);
-
-      // Only Authorization header, remove manual Content-Type
-      request.headers.addAll({
-        'Authorization': token ?? AuthService.token.toString(),
-      });
-
-      // Add files
-      for (final file in files) {
-        request.files.add(await http.MultipartFile.fromPath(field, file.path));
-      }
-
-      // Add text fields
-      if (otherFields != null) {
-        final Map<String, String> fieldsAsString = {};
-        otherFields.forEach((key, value) {
-          // Convert value to JSON string if it's a Map
-          if (value is Map || value is List) {
-            fieldsAsString[key] = jsonEncode(value);
-          } else {
-            fieldsAsString[key] = value.toString();
-          }
-        });
-        request.fields.addAll(fieldsAsString);
-      }
-
-      final streamedResponse = await request.send().timeout(
-        const Duration(seconds: 60), // adjust timeoutDuration if needed
-      );
-      final response = await http.Response.fromStream(streamedResponse);
-
-      return _handleResponse(response);
-    } catch (e) {
-      return _handleError(e);
-    }
-  }
-
-  Future<ResponseData> multiPostRequest(
-    String endpoint, {
-    List<File>? images,
-    File? invoice,
-    String? token,
-    Map<String, dynamic>? otherFields,
-  }) async {
-    AppLoggerHelper.info('MULTIPART Request: $endpoint');
-    try {
-      final uri = Uri.parse(endpoint);
-      // ⚠️ Use PATCH instead of POST (as in Postman)
-      final request = http.MultipartRequest('PATCH', uri);
-
-      // Add headers
-      request.headers.addAll({
-        'Authorization': token ?? AuthService.token.toString(),
-      });
-
-      // Add bodyData as JSON string
-      if (otherFields != null) {
-        request.fields['bodyData'] = jsonEncode(otherFields);
-      }
-
-      // Add images (multiple)
-      if (images != null && images.isNotEmpty) {
-        for (final file in images) {
-          request.files.add(
-            await http.MultipartFile.fromPath('images', file.path),
-          );
-        }
-      }
-
-      // Add invoice (single)
-      if (invoice != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath('invoice', invoice.path),
-        );
-      }
-
-      final streamedResponse = await request.send().timeout(
-        const Duration(seconds: 60),
-      );
-      final response = await http.Response.fromStream(streamedResponse);
-
+      final response = await http
+          .post(
+            Uri.parse(endpoint),
+            headers: _buildHeaders(token: token, extraHeaders: headers),
+            body: body != null ? jsonEncode(body) : null,
+          )
+          .timeout(_timeout);
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
@@ -177,20 +55,19 @@ class NetworkCaller {
     String endpoint, {
     Map<String, dynamic>? body,
     String? token,
+    Map<String, String>? headers,
   }) async {
-    AppLoggerHelper.info('PUT Request: $endpoint');
-    AppLoggerHelper.info('Request Body: ${jsonEncode(body.toString())}');
+    AppLogger.info('🔄 PUT Request: $endpoint');
+    if (body != null) AppLogger.json(body, tag: 'PUT Request');
 
     try {
-      final Response response = await put(
-        Uri.parse(endpoint),
-        headers: {
-          'Authorization': token ?? AuthService.token.toString(),
-          'Content-type': 'application/json',
-          'x-api-key': "AABBCCCDDDJJKKIIUU1234",
-        },
-        body: jsonEncode(body),
-      ).timeout(Duration(seconds: timeoutDuration));
+      final response = await http
+          .put(
+            Uri.parse(endpoint),
+            headers: _buildHeaders(token: token, extraHeaders: headers),
+            body: body != null ? jsonEncode(body) : null,
+          )
+          .timeout(_timeout);
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
@@ -201,267 +78,269 @@ class NetworkCaller {
     String endpoint, {
     Map<String, dynamic>? body,
     String? token,
+    Map<String, String>? headers,
   }) async {
-    final authToken = token ?? AuthService.token ?? '';
-    if (authToken.isEmpty) {
-      return ResponseData(
-        isSuccess: false,
-        statusCode: 401,
-        errorMessage: 'Missing or invalid authentication token.',
-        responseData: null,
-      );
-    }
-
-    AppLoggerHelper.info('PATCH Request: $endpoint');
-    AppLoggerHelper.info('Request Body: ${jsonEncode(body)}');
-    AppLoggerHelper.info('Token: $authToken');
+    AppLogger.info('✏️ PATCH Request: $endpoint');
+    if (body != null) AppLogger.json(body, tag: 'PATCH Request');
 
     try {
-      final Response response = await http
+      final response = await http
           .patch(
             Uri.parse(endpoint),
-            headers: {
-              'authorization': token ?? AuthService.token.toString(),
-              'x-api-key': "AABBCCCDDDJJKKIIUU1234",
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode(body),
+            headers: _buildHeaders(token: token, extraHeaders: headers),
+            body: body != null ? jsonEncode(body) : null,
           )
-          .timeout(Duration(seconds: timeoutDuration));
-
+          .timeout(_timeout);
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
     }
   }
 
-  Future<ResponseData> patchRequestWithImage(
+  Future<ResponseData> deleteRequest(
     String endpoint, {
-    Map<String, dynamic>? fields,
-    String? imagePath,
     String? token,
+    Map<String, String>? headers,
   }) async {
-    AppLoggerHelper.info('PATCH Multipart Request: $endpoint');
-    AppLoggerHelper.info('Fields: ${jsonEncode(fields)}');
-    AppLoggerHelper.info('Image Path: $imagePath');
-
+    AppLogger.info('🗑️ DELETE Request: $endpoint');
     try {
-      var request = http.MultipartRequest('PATCH', Uri.parse(endpoint));
+      final response = await http
+          .delete(
+            Uri.parse(endpoint),
+            headers: _buildHeaders(token: token, extraHeaders: headers),
+          )
+          .timeout(_timeout);
+      return _handleResponse(response);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
 
-      // Add individual fields
+  Future<ResponseData> multipartRequest(
+    String endpoint, {
+    String method = 'POST',
+    Map<String, dynamic>? fields,
+    List<MapEntry<String, File>>? files,
+    String? token,
+    Map<String, String>? headers,
+  }) async {
+    AppLogger.info('📦 $method Multipart Request: $endpoint');
+    try {
+      final request = http.MultipartRequest(method, Uri.parse(endpoint));
+
+      final requestHeaders = _buildHeaders(token: token, extraHeaders: headers)
+        ..remove('Content-Type');
+      request.headers.addAll(requestHeaders);
+
       if (fields != null) {
         fields.forEach((key, value) {
-          request.fields[key] = value.toString();
+          if (value != null) {
+            request.fields[key] = value is Map || value is List
+                ? jsonEncode(value)
+                : value.toString();
+          }
         });
       }
 
-      // Add image file if provided
-      if (imagePath != null && imagePath.isNotEmpty) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'avatar',
-            imagePath,
-          ), // match server field
-        );
+      if (files != null) {
+        for (final entry in files) {
+          if (entry.value.existsSync()) {
+            request.files.add(
+              await http.MultipartFile.fromPath(entry.key, entry.value.path),
+            );
+          } else {
+            AppLogger.warning(
+              '⚠️ Multipart File not found: ${entry.value.path}',
+            );
+          }
+        }
       }
 
-      // Add headers (no Content-Type)
-      request.headers.addAll({
-        'Authorization': token ?? AuthService.token.toString(),
-        'x-api-key': "AABBCCCDDDJJKKIIUU1234",
-      });
-
-      // Send request
-      http.StreamedResponse streamedResponse = await request.send().timeout(
-        Duration(seconds: timeoutDuration),
-      );
-
-      final responseString = await streamedResponse.stream.bytesToString();
-      final response = http.Response(
-        responseString,
-        streamedResponse.statusCode,
-        headers: streamedResponse.headers,
-      );
-
+      final streamedResponse = await request.send().timeout(_timeout * 2);
+      final response = await http.Response.fromStream(streamedResponse);
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
     }
   }
 
-  Future<ResponseData> deleteRequest(String endpoint, String? token) async {
-    AppLoggerHelper.info('DELETE Request: $endpoint');
+  Future<ResponseData> multipartPostRequest(
+    String endpoint, {
+    Map<String, dynamic>? fields,
+    List<MapEntry<String, File>>? files,
+    String? token,
+    Map<String, String>? headers,
+  }) {
+    return multipartRequest(
+      endpoint,
+      method: 'POST',
+      fields: fields,
+      files: files,
+      token: token,
+      headers: headers,
+    );
+  }
+
+  Future<ResponseData> multipartPatchRequest(
+    String endpoint, {
+    Map<String, dynamic>? fields,
+    List<MapEntry<String, File>>? files,
+    String? token,
+    Map<String, String>? headers,
+  }) {
+    return multipartRequest(
+      endpoint,
+      method: 'PATCH',
+      fields: fields,
+      files: files,
+      token: token,
+      headers: headers,
+    );
+  }
+
+  Future<ResponseData> multipartPutRequest(
+    String endpoint, {
+    Map<String, dynamic>? fields,
+    List<MapEntry<String, File>>? files,
+    String? token,
+    Map<String, String>? headers,
+  }) {
+    return multipartRequest(
+      endpoint,
+      method: 'PUT',
+      fields: fields,
+      files: files,
+      token: token,
+      headers: headers,
+    );
+  }
+
+  Map<String, String> _buildHeaders({
+    String? token,
+    Map<String, String>? extraHeaders,
+  }) {
+    final effectiveToken = token ?? AuthService.token;
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (effectiveToken != null && effectiveToken.trim().isNotEmpty) {
+      headers['Authorization'] = effectiveToken.startsWith('Bearer ')
+          ? effectiveToken
+          : 'Bearer $effectiveToken';
+    }
+
+    if (extraHeaders != null) {
+      headers.addAll(extraHeaders);
+    }
+
+    return headers;
+  }
+
+  ResponseData _handleResponse(http.Response response) {
+    final decoded = _safeDecode(response.body);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      AppLogger.info(
+        '✅ Response [${response.statusCode}]: ${response.request?.url ?? ''}',
+      );
+      return ResponseData.success(
+        data: decoded,
+        statusCode: response.statusCode,
+        message: _extractSuccessMessage(decoded),
+      );
+    }
+
+    if (response.statusCode == 401) {
+      AppLogger.warning(
+        '🔒 Response [401 Unauthorized]: ${response.request?.url ?? ''}',
+      );
+      return ResponseData.error(
+        message: _extractErrorMessage(
+          decoded,
+          'Your session has expired. Please log in again.',
+        ),
+        statusCode: 401,
+        data: decoded,
+      );
+    }
+
+    if (response.statusCode == 403) {
+      AppLogger.warning(
+        '🚫 Response [403 Forbidden]: ${response.request?.url ?? ''}',
+      );
+      return ResponseData.error(
+        message: _extractErrorMessage(
+          decoded,
+          'You do not have permission to access this resource.',
+        ),
+        statusCode: 403,
+        data: decoded,
+      );
+    }
+
+    AppLogger.error(
+      '⚠️ Response [${response.statusCode}]: ${response.request?.url ?? ''}',
+    );
+    return ResponseData.error(
+      message: _extractErrorMessage(
+        decoded,
+        'Request failed with status code ${response.statusCode}.',
+      ),
+      statusCode: response.statusCode,
+      data: decoded,
+    );
+  }
+
+  dynamic _safeDecode(String body) {
     try {
-      final Response response = await delete(
-        Uri.parse(endpoint),
-        headers: {
-          'authorization': token ?? AuthService.token.toString(),
-          'Content-type': 'application/json',
-          'x-api-key': "AABBCCCDDDJJKKIIUU1234",
-        },
-      ).timeout(Duration(seconds: timeoutDuration));
-      return _handleResponse(response);
-    } catch (e) {
-      return _handleError(e);
+      return jsonDecode(body);
+    } catch (_) {
+      return body;
     }
   }
 
-  // Handle the response from the server
-  Future<ResponseData> _handleResponse(http.Response response) async {
-    AppLoggerHelper.info('Response Status: ${response.statusCode}');
-    AppLoggerHelper.info('Response Body: ${response.body}');
-
-    try {
-      final decodedResponse = jsonDecode(response.body);
-      switch (response.statusCode) {
-        case 200:
-        case 201:
-          return ResponseData(
-            isSuccess: true,
-            statusCode: response.statusCode,
-            responseData: decodedResponse,
-            errorMessage: '',
-          );
-        case 204:
-          return ResponseData(
-            isSuccess: true,
-            statusCode: response.statusCode,
-            responseData: null,
-            errorMessage: '',
-          );
-        case 400:
-          return ResponseData(
-            isSuccess: false,
-            statusCode: response.statusCode,
-            errorMessage:
-                decodedResponse['message'] ??
-                'There was an issue with your request. Please try again.',
-            responseData: decodedResponse,
-          );
-        case 401:
-          // await AuthService.logoutUser();
-          return ResponseData(
-            isSuccess: false,
-            statusCode: response.statusCode,
-            errorMessage: 'You are not authorized. Please log in to continue.',
-            responseData: null,
-          );
-        case 403:
-          return ResponseData(
-            isSuccess: false,
-            statusCode: response.statusCode,
-            errorMessage: 'You do not have permission to access this resource.',
-            responseData: null,
-          );
-        case 404:
-          return ResponseData(
-            isSuccess: false,
-            statusCode: response.statusCode,
-            errorMessage: 'The resource you are looking for was not found.',
-            responseData: null,
-          );
-        case 500:
-          return ResponseData(
-            isSuccess: false,
-            statusCode: response.statusCode,
-            errorMessage: 'Internal server error. Please try again later.',
-            responseData: null,
-          );
-        default:
-          return ResponseData(
-            isSuccess: false,
-            statusCode: response.statusCode,
-            errorMessage:
-                decodedResponse['message'] ??
-                'Something went wrong. Please try again.',
-            responseData: decodedResponse,
-          );
-      }
-    } catch (e) {
-      return ResponseData(
-        isSuccess: false,
-        statusCode: response.statusCode,
-        errorMessage: 'Failed to process the response. Please try again later.',
-        responseData: null,
-      );
+  String _extractErrorMessage(dynamic decoded, String defaultMessage) {
+    if (decoded is Map) {
+      if (decoded['message'] != null) return decoded['message'].toString();
+      if (decoded['error'] != null) return decoded['error'].toString();
+      if (decoded['errors'] != null) return decoded['errors'].toString();
     }
+    return defaultMessage;
   }
 
-  ResponseData _loginhandleResponse(Response response) {
-    log('Response Status: ${response.statusCode}');
-    log('Response Body: ${response.body}');
-
-    final decodedResponse = jsonDecode(response.body);
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      if (decodedResponse['success'] == true) {
-        return ResponseData(
-          isSuccess: true,
-          statusCode: response.statusCode,
-          responseData: decodedResponse['result'],
-          errorMessage: '',
-        );
-      } else {
-        return ResponseData(
-          isSuccess: false,
-          statusCode: response.statusCode,
-          responseData: decodedResponse,
-          errorMessage: decodedResponse['message'] ?? 'Unknown error occurred',
-        );
-      }
+  String _extractSuccessMessage(dynamic decoded) {
+    if (decoded is Map && decoded['message'] != null) {
+      return decoded['message'].toString();
     }
-    // else if (response.statusCode == 401) {
-    //   return ResponseData(
-    //     isSuccess: false,
-    //     statusCode: response.statusCode,
-    //     responseData: decodedResponse,
-    //     errorMessage: _extractErrorMessages(decodedResponse['errorSources']),
-    //   );
-    // }
-    else if (response.statusCode == 500) {
-      return ResponseData(
-        isSuccess: false,
-        statusCode: response.statusCode,
-        responseData: decodedResponse,
-        errorMessage:
-            decodedResponse['message'] ?? 'An unexpected error occurred!',
-      );
-    } else {
-      return ResponseData(
-        isSuccess: false,
-        statusCode: response.statusCode,
-        responseData: decodedResponse,
-        errorMessage: decodedResponse['message'] ?? 'An unknown error occurred',
-      );
-    }
+    return '';
   }
 
-  // Handle errors during the request process
   ResponseData _handleError(dynamic error) {
-    log('Request Error: $error');
-
     if (error is TimeoutException) {
-      return ResponseData(
-        isSuccess: false,
+      AppLogger.error('⏱️ ❌ Network Error (Timeout): $error');
+      return ResponseData.error(
+        message: 'Request timed out. Please check your internet connection.',
         statusCode: 408,
-        errorMessage:
-            'Request timed out. Please check your internet connection and try again.',
-        responseData: null,
+      );
+    } else if (error is SocketException) {
+      AppLogger.error('🔌 ❌ Network Error (No Internet): $error');
+      return ResponseData.error(
+        message: 'No internet connection. Please verify your network.',
+        statusCode: 0,
       );
     } else if (error is http.ClientException) {
-      return ResponseData(
-        isSuccess: false,
+      AppLogger.error('📡 ❌ Network Error (Client Exception): $error');
+      return ResponseData.error(
+        message: 'Client communication error. Please try again.',
         statusCode: 500,
-        errorMessage:
-            'Network error occurred. Please check your connection and try again.',
-        responseData: null,
       );
     } else {
-      return ResponseData(
-        isSuccess: false,
+      AppLogger.error('💥 ❌ Network Error: $error');
+      return ResponseData.error(
+        message: 'An unexpected network error occurred. Please try again.',
         statusCode: 500,
-        errorMessage: 'Unexpected error occurred. Please try again later.',
-        responseData: null,
       );
     }
   }
