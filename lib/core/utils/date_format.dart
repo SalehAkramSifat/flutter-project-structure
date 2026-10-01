@@ -1,203 +1,232 @@
 import 'package:intl/intl.dart';
 
 class DateFormatter {
-  /// 1️⃣ Simple date: dd/MM/yyyy → 26/09/2025
-  static String simpleDate(String? date) {
-    if (date == null || date.isEmpty) return '';
+  DateFormatter._();
+
+  /// Example: 26/09/2025
+  static String simpleDate(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('dd/MM/yyyy').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 2️⃣ Short date with month name: dd MMM yyyy → 26 Sep 2025
-  static String shortDate(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 26 Sep 2025
+  static String shortDate(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('dd MMM yyyy').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 3️⃣ Long date with weekday: EEE, dd MMM yyyy → Thu, 26 Sep 2025
-  static String longDate(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Thu, 26 Sep 2025
+  static String longDate(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('EEE, dd MMM yyyy').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 4️⃣ Full date with day suffix: Thu, 26th Sep 2025
-  static String dateWithSuffix(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Thu, 26th Sep 2025
+  static String dateWithSuffix(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       final day = parsed.day;
       final suffix = _getDaySuffix(day);
       final monthYear = DateFormat('MMM yyyy').format(parsed);
       final weekday = DateFormat('EEE').format(parsed);
       return '$weekday, $day$suffix $monthYear';
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  static String dateAndMonth(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Thu, 26th
+  static String dateAndMonth(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       final day = parsed.day;
       final suffix = _getDaySuffix(day);
       final weekday = DateFormat('EEE').format(parsed);
       return '$weekday, $day$suffix';
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 5️⃣ Full date with full weekday & month: Thursday, 26 September 2025
-  static String fullDate(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Thursday, 26 September 2025
+  static String fullDate(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('EEEE, dd MMMM yyyy').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 6️⃣ Time only (12-hour): h:mm a → 3:45 PM
-  static String timeOnly(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 3:45 PM
+  static String timeOnly(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('h:mm a').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 7️⃣ Time only (24-hour): HH:mm → 15:45
-  static String timeOnly24(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 15:45
+  static String timeOnly24(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('HH:mm').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 8️⃣ Full date + time (12-hour): dd/MM/yyyy hh:mm a → 26/09/2025 03:45 PM
-  static String fullDateTime(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 26/09/2025 03:45 PM
+  static String fullDateTime(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('dd/MM/yyyy hh:mm a').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 9️⃣ Full date + time (24-hour): dd/MM/yyyy HH:mm → 26/09/2025 15:45
-  static String fullDateTime24(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 26/09/2025 15:45
+  static String fullDateTime24(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 🔟 Month-Year only: MMM yyyy → Sep 2025
-  static String monthYear(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Sep 2025
+  static String monthYear(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('MMM yyyy').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 11️⃣ Relative format: Today / Yesterday / else dd MMM yyyy
-  static String relativeDay(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Today
+  static String relativeDay(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       final now = DateTime.now();
-      final difference = now.difference(parsed).inDays;
+      final nowDate = DateTime(now.year, now.month, now.day);
+      final parsedDate = DateTime(parsed.year, parsed.month, parsed.day);
+      final difference = nowDate.difference(parsedDate).inDays;
+
       if (difference == 0) return 'Today';
       if (difference == 1) return 'Yesterday';
+      if (difference == -1) return 'Tomorrow';
       return DateFormat('dd MMM yyyy').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 12️⃣ ISO 8601 string → 2025-09-26T15:45:00.000Z
-  static String isoString(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 2025-09-26T15:45:00.000
+  static String isoString(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return parsed.toIso8601String();
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 13️⃣ Weekday + day: EEE, dd → Thu, 26
-  static String weekdayDay(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Thu, 26
+  static String weekdayDay(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('EEE, dd').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  static String dayMonth(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 26 Sep
+  static String dayMonth(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('dd MMM').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 14️⃣ Full weekday + day + month: EEEE, dd MMMM → Thursday, 26 September
-  static String weekdayDayMonth(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: Thursday, 26 September
+  static String weekdayDayMonth(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('EEEE, dd MMMM').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 16️⃣ Custom format: dd MMM yyyy hh:mm a → 15 Jun 2025 02:01 PM
-  static String customDateTime(String? date) {
-    if (date == null || date.isEmpty) return '';
+  /// Example: 15 Jun 2025 02:01 PM
+  static String customDateTime(dynamic date) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
     try {
-      final parsed = DateTime.parse(date);
       return DateFormat('dd MMM yyyy hh:mm a').format(parsed);
-    } catch (e) {
-      return date;
+    } catch (_) {
+      return date?.toString() ?? '';
     }
   }
 
-  /// 15️⃣ Utility: day suffix
+  static String format(dynamic date, String pattern) {
+    final parsed = _parseDate(date);
+    if (parsed == null) return date?.toString() ?? '';
+    try {
+      return DateFormat(pattern).format(parsed);
+    } catch (_) {
+      return date?.toString() ?? '';
+    }
+  }
+
+  /// Helper to safely parse both DateTime and String inputs
+  static DateTime? _parseDate(dynamic date) {
+    if (date == null) return null;
+    if (date is DateTime) return date;
+    if (date is String) {
+      if (date.trim().isEmpty) return null;
+      return DateTime.tryParse(date.trim());
+    }
+    return null;
+  }
+
+  /// Utility: day suffix (st, nd, rd, th)
   static String _getDaySuffix(int day) {
     if (day >= 11 && day <= 13) return 'th';
     switch (day % 10) {

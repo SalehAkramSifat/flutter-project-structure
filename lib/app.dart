@@ -4,7 +4,6 @@ import 'package:flutter_project_structure/core/utils/app_sizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_project_structure/core/utils/app_sizes.dart';
 import 'package:flutter_project_structure/route/app_routes.dart';
 import 'package:get/get.dart';
 
@@ -20,7 +19,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppSizes().init(context);
     return Sizer(
       builder: (context, orientation, deviceType) {
         return GetMaterialApp(

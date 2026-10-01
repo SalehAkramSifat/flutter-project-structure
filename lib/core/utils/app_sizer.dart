@@ -48,12 +48,12 @@ class Sizer extends StatelessWidget {
 }
 
 class SizeUtils {
-  static late BoxConstraints boxConstraints;
-  static late Orientation orientation;
-  static late DeviceType deviceType;
-  static late double width;
-  static late double height;
-  static late EdgeInsets safeAreaPadding;
+  static BoxConstraints boxConstraints = const BoxConstraints();
+  static Orientation orientation = Orientation.portrait;
+  static DeviceType deviceType = DeviceType.mobile;
+  static double width = kFigmaDesignWidth;
+  static double height = kFigmaDesignHeight;
+  static EdgeInsets safeAreaPadding = EdgeInsets.zero;
   static bool debugMode = false;
   static void setScreenSize(
     BoxConstraints constraints,
@@ -66,10 +66,10 @@ class SizeUtils {
 
     if (orientation == Orientation.portrait) {
       width = boxConstraints.maxWidth.nonZero(defaultValue: kFigmaDesignWidth);
-      height = boxConstraints.maxHeight.nonZero();
+      height = boxConstraints.maxHeight.nonZero(defaultValue: kFigmaDesignHeight);
     } else {
       width = boxConstraints.maxHeight.nonZero(defaultValue: kFigmaDesignWidth);
-      height = boxConstraints.maxWidth.nonZero();
+      height = boxConstraints.maxWidth.nonZero(defaultValue: kFigmaDesignHeight);
     }
     if (width >= 1200) {
       deviceType = DeviceType.desktop;

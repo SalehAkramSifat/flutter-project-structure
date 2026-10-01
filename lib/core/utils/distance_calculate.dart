@@ -1,17 +1,14 @@
 import 'dart:math';
 
 class DistanceCalculator {
-  /// Calculate distance between two points using Haversine formula
-  /// Returns distance in kilometers
   static double calculateDistance(
     double lat1,
     double lon1,
     double lat2,
     double lon2,
   ) {
-    const double earthRadius = 6371; // Earth's radius in kilometers
+    const double earthRadius = 6371;
 
-    // Convert degrees to radians
     double dLat = _toRadians(lat2 - lat1);
     double dLon = _toRadians(lon2 - lon1);
 
@@ -28,13 +25,10 @@ class DistanceCalculator {
     return distance;
   }
 
-  /// Convert degrees to radians
   static double _toRadians(double degree) {
     return degree * pi / 180;
   }
 
-  /// Format distance for display
-  /// Returns "X.X km away" or "X m away"
   static String formatDistance(double distanceInKm) {
     if (distanceInKm < 1) {
       int meters = (distanceInKm * 1000).round();
